@@ -12,6 +12,7 @@
 #include <ServerPlayerSpawnerComponent.h>
 #include <PlayerActionRelayComponent.h>
 #include <platform_impl.h>
+#include <MyCharacterComponent.h>
 
 namespace MultiplayerCharacter
 {
@@ -38,6 +39,7 @@ namespace MultiplayerCharacter
                 ServerPlayerSpawnerComponent::CreateDescriptor(),
                 PlayerActionRelayComponent::CreateDescriptor(),
                 MultiplayerCharacterSystemComponent::CreateDescriptor(),
+                MyCharacterComponent::CreateDescriptor(),
             });
         }
 

@@ -74,6 +74,12 @@
             "_comment": "Maestro"
         },
         {
+            "Path": "Gems/PhysX",
+            "Uuid": "4e08125824434932a0fe3717259caa47",
+            "Version": "0.1.0",
+            "_comment": "PhysX"
+        },
+        {
             "Path": "Gems/CameraFramework",
             "Uuid": "54f2763fe191432fa681ce4a354eedf5",
             "Version": "0.1.0",

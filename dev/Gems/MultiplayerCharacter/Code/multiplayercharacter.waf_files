@@ -1,6 +1,7 @@
 {
     "auto": {
         "Include": [
+            "Include/MultiplayerCharacter/MyCharacterBus.h",
             "Include/MultiplayerCharacter/LocalClientBus.h",
             "Include/MultiplayerCharacter/LocalPlayerBodyNotificationBus.h",
             "Include/MultiplayerCharacter/ServerPlayerBodyBus.h",
@@ -13,6 +14,8 @@
             "Source/MultiplayerCharacterModule.cpp",
             "Source/LocalClientComponent.cpp",
             "Source/LocalClientComponent.h",
+            "Source/MyCharacterComponent.cpp",
+            "Source/MyCharacterComponent.h",
             "Source/ServerAuthPlayerComponent.cpp",
             "Source/ServerAuthPlayerComponent.h",
             "Source/ServerPlayerSpawnerComponent.cpp",
