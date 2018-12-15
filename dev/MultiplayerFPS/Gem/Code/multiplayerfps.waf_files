@@ -1,0 +1,12 @@
+{
+    "auto": {
+        "Include": [
+            "Include/MultiplayerFPS/MultiplayerFPSBus.h"
+        ],
+        "Source": [
+            "Source/MultiplayerFPSModule.cpp",
+            "Source/MultiplayerFPSSystemComponent.cpp",
+            "Source/MultiplayerFPSSystemComponent.h"
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "description": "Configuration for MultiplayerFPS",
+    "visual_studio_name": "MultiplayerFPS",
+    "comment" : "",
+    "game_projects" : "MultiplayerFPS",
+
+    "modules" : [
+    ]
+}

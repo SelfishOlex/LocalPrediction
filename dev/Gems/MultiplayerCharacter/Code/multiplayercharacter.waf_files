@@ -1,0 +1,38 @@
+{
+    "auto": {
+        "Include": [
+            "Include/MultiplayerCharacter/LocalClientBus.h",
+            "Include/MultiplayerCharacter/LocalPlayerBodyNotificationBus.h",
+            "Include/MultiplayerCharacter/ServerPlayerBodyBus.h",
+            "Include/MultiplayerCharacter/FootstepComponentBus.h",
+            "Include/MultiplayerCharacter/PebbleSpawnerComponentBus.h",
+            "Include/MultiplayerCharacter/PlayerControlsRequestBus.h",
+            "Include/MultiplayerCharacter/MultiplayerCharacterBus.h"
+        ],
+        "Source": [
+            "Source/MultiplayerCharacterModule.cpp",
+            "Source/LocalClientComponent.cpp",
+            "Source/LocalClientComponent.h",
+            "Source/ServerAuthPlayerComponent.cpp",
+            "Source/ServerAuthPlayerComponent.h",
+            "Source/ServerPlayerSpawnerComponent.cpp",
+            "Source/ServerPlayerSpawnerComponent.h",
+            "Source/CameraControlsComponent.cpp",
+            "Source/CameraControlsComponent.h",
+            "Source/FootstepComponent.cpp",
+            "Source/FootstepComponent.h",
+            "Source/InputCaptureComponent.cpp",
+            "Source/InputCaptureComponent.h",
+            "Source/PebbleSpawnerComponent.cpp",
+            "Source/PebbleSpawnerComponent.h",
+            "Source/PlayerActionRelayComponent.cpp",
+            "Source/PlayerActionRelayComponent.h",
+            "Source/PlayerControlsComponent.cpp",
+            "Source/PlayerControlsComponent.h",
+            "Source/TimedProjectileComponent.cpp",
+            "Source/TimedProjectileComponent.h",
+            "Source/MultiplayerCharacterSystemComponent.cpp",
+            "Source/MultiplayerCharacterSystemComponent.h"
+        ]
+    }
+}
