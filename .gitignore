@@ -137,3 +137,10 @@
 /dev/SetupAssistantUserPreferences.ini
 /dev/_WAF_/environment.json
 /SetupAssistant.bat
+dev/Bin64vc141.Dedicated/
+dev/Bin64vc141.Test/
+dev/CloudGemDefectReportSample/Gem/Resources/GameSDK.ico
+filehashes.json
+dev/UserSettings.xml
+dev/Tools/LmbrSetup/win.vc141/
+dev/Tools/LmbrSetup/Win.vc141.Profile.Test/
