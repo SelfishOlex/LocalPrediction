@@ -144,3 +144,8 @@ filehashes.json
 dev/UserSettings.xml
 dev/Tools/LmbrSetup/win.vc141/
 dev/Tools/LmbrSetup/Win.vc141.Profile.Test/
+dev/MultiplayerFPS/Levels/Simple/_savebackup/
+dev/Editor/editoreventlog.xml
+dev/Editor/editorlayout.xml
+dev/MultiplayerFPS/AWS/local-project-settings.json
+dev/SessionStatus/editor_statuses.json
