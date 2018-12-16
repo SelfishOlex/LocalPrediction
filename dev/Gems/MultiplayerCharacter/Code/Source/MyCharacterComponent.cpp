@@ -31,15 +31,18 @@ void MyCharacterComponent::Reflect( AZ::ReflectContext* reflection )
 void MyCharacterComponent::Init()
 {
     m_desiredDirectionAndSpeed = AZ::Vector3::CreateZero();
+    m_gravity = AZ::Vector3::CreateAxisZ( -9.81f );
 }
 
 void MyCharacterComponent::Activate()
 {
+#if defined(DEDICATED_SERVER)
     TickBus::Handler::BusConnect();
     MyCharacterBus::Handler::BusConnect( GetEntityId() );
 
     Physics::SystemRequestBus::BroadcastResult( m_physXWorld, &Physics::SystemRequestBus::Events::GetDefaultWorld );
     AZ_Assert( m_physXWorld, "Didn't get PhysX world" );
+#endif
 }
 
 void MyCharacterComponent::Deactivate()
@@ -50,47 +53,15 @@ void MyCharacterComponent::Deactivate()
     m_physXWorld = nullptr;
 }
 
-void MyCharacterComponent::PhysicalMove( const AZ::Vector3& direction )
+void MyCharacterComponent::PhysicalMove( const AZ::Vector3& direction, float deltaTime )
 {
-    Physics::ShapeCastRequest request;
-    Physics::ShapeCastResult result;
-
-    // set the start of the shape cast
-    AZ::TransformBus::EventResult( request.m_start, GetEntityId(), &AZ::TransformBus::Events::GetWorldTM );
-
-    AZ_Printf( "LocalPrediction", "Character @ (%f %f %f)",
-        float( request.m_start.GetTranslation().GetX() ), float( request.m_start.GetTranslation().GetY() ), float( request.m_start.GetTranslation().GetZ() ) );
-
-    // set the end of the shape cast
-    AZ::Transform end = request.m_start;
-    const AZ::Vector3 destinationVector = end.GetTranslation() + direction;
-    end.SetTranslation( destinationVector );
-    request.m_end = end;
-
-    // set the shape
-    PhysX::PhysXColliderComponentRequestBus::EventResult( request.m_shapeConfiguration, GetEntityId(), &PhysX::PhysXColliderComponentRequestBus::Events::GetShapeConfigFromEntity );
-
-    m_physXWorld->ShapeCast( request, result );
-
-    if ( result.m_hits.empty() )
+    if ( !direction.IsZero() )
     {
-        // no collision, move on forward
-        AZ::TransformBus::Event( GetEntityId(), &AZ::TransformBus::Events::SetWorldTM, end );
-
-        AZ_Printf( "LocalPrediction", "Character freely moving to (%f %f %f)",
-            float( destinationVector.GetX() ), float( destinationVector.GetY() ), float( destinationVector.GetZ() ) );
+        PhysicalMoveWithoutGravity( direction, deltaTime );
     }
     else
     {
-        // move to the collision point
-        AZ::Transform locationAtCollision = request.m_start;
-        locationAtCollision.SetTranslation( result.m_hits[0].m_position );
-
-        AZ::TransformBus::Event( GetEntityId(), &AZ::TransformBus::Events::SetWorldTM, locationAtCollision );
-
-        const AZ::Vector3 moveToLocation = result.m_hits[0].m_position;
-        AZ_Printf( "LocalPrediction", "Character bumped into something, moved to (%f %f %f)",
-            float( moveToLocation.GetX() ), float( moveToLocation.GetY() ), float( moveToLocation.GetZ() ) );
+        ApplyGravity( deltaTime );
     }
 }
 
@@ -102,12 +73,7 @@ void MyCharacterComponent::RequestVelocity( const AZ::Vector3& direction )
 void MyCharacterComponent::OnTick( float deltaTime, ScriptTimePoint time )
 {
     KeepUpRight();
-
-    if ( !m_desiredDirectionAndSpeed.IsZero() )
-    {
-        const AZ::Vector3 moveThisFrame = m_desiredDirectionAndSpeed * deltaTime;
-        PhysicalMove( moveThisFrame );
-    }
+    PhysicalMove( m_desiredDirectionAndSpeed, deltaTime );
 }
 
 void MyCharacterComponent::KeepUpRight()
@@ -118,4 +84,50 @@ void MyCharacterComponent::KeepUpRight()
     localRotation.SetY( 0.f );
 
     AZ::TransformBus::Event( GetEntityId(), &TransformBus::Events::SetLocalRotation, localRotation );
+}
+
+void MyCharacterComponent::PhysicalMoveWithoutGravity(const AZ::Vector3& direction, float deltaTime)
+{
+    const AZ::Vector3 moveAmount = direction * deltaTime;
+
+    Physics::RayCastRequest request;
+    Physics::RayCastResult result;
+
+    // set the start
+    AZ::Vector3 startLocation;
+    AZ::TransformBus::EventResult( startLocation, GetEntityId(), &AZ::TransformBus::Events::GetWorldTranslation );
+    request.m_start = startLocation;
+
+    AZ_Printf( "LocalPrediction", "Character @ (%f %f %f)",
+        float( request.m_start.GetX() ), float( request.m_start.GetY() ), float( request.m_start.GetZ() ) );
+
+    request.m_dir = direction.GetNormalized();
+    request.m_time = direction.GetLength() * deltaTime;
+
+    m_physXWorld->RayCast( request, result );
+
+    if ( result.m_hits.empty() )
+    {
+        const AZ::Vector3 end = startLocation + request.m_dir * request.m_time;
+
+        // no collision, move on forward
+        AZ::TransformBus::Event( GetEntityId(), &AZ::TransformBus::Events::SetWorldTranslation, end );
+
+        AZ_Printf( "LocalPrediction", "Character freely moving to (%f %f %f)", float( end.GetX() ), float( end.GetY() ), float( end.GetZ() ) );
+    }
+    else if ( result.m_hits[0].m_hitTime > 0 ) // hack around PhysX Gem implementation that returns bad hits
+    {
+        // move to the collision point
+        const AZ::Vector3 locationAtCollision = request.m_start + AZStd::GetMax( result.m_hits[0].m_hitTime - m_characterSize, 0.f) * request.m_dir;
+
+        AZ::TransformBus::Event( GetEntityId(), &AZ::TransformBus::Events::SetWorldTranslation, locationAtCollision );
+
+        AZ_Printf( "LocalPrediction", "Character bumped into something, moved to (%f %f %f)",
+            float( locationAtCollision.GetX() ), float( locationAtCollision.GetY() ), float( locationAtCollision.GetZ() ) );
+    }
+}
+
+void MyCharacterComponent::ApplyGravity( float deltaTime )
+{
+    PhysicalMove( m_gravity, deltaTime );
 }

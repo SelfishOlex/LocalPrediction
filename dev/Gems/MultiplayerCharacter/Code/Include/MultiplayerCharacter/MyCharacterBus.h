@@ -19,8 +19,9 @@ namespace MultiplayerCharacter
         /**
          * \brief Move immediately physically in the world
          * \param direction magnitude is used to tell how far to move
+         * \param deltaTime an amount of time to move by
          */
-        virtual void PhysicalMove(const AZ::Vector3& direction) = 0;
+        virtual void PhysicalMove(const AZ::Vector3& direction, float deltaTime) = 0;
     };
 
     using MyCharacterBus = AZ::EBus<MyCharacterInterface>;
