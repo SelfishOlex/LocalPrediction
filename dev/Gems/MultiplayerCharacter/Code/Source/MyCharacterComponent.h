@@ -3,6 +3,8 @@
 #include <AzCore/Component/Component.h>
 #include <MultiplayerCharacter/MyCharacterBus.h>
 #include <AzCore/Component/TickBus.h>
+#include <AzFramework/Physics/Base.h>
+#include <AzFramework/Physics/World.h>
 
 namespace MultiplayerCharacter
 {
@@ -34,7 +36,9 @@ namespace MultiplayerCharacter
         void OnTick(float deltaTime, AZ::ScriptTimePoint time) override;
 
     private:
-        AZ::Vector3 m_desiredDirection;
+        AZ::Vector3 m_desiredDirectionAndSpeed;
+
+        Physics::Ptr<Physics::World> m_physXWorld;
 
         void KeepUpRight();
     };

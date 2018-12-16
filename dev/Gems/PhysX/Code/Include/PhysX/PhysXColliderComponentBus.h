@@ -13,7 +13,7 @@
 #pragma once
 
 #include <AzCore/Component/ComponentBus.h>
-#include <PxPhysicsAPI.h>
+//#include <PxPhysicsAPI.h>
 #include <AzFramework/Physics/ShapeConfiguration.h>
 
 namespace PhysX

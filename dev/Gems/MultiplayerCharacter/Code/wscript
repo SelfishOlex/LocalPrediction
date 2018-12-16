@@ -11,7 +11,8 @@ def build(bld):
 
         # Add custom build options here
         use                     = ['LmbrCentral',
-                                   'EMotionFXStaticLib'],
+                                   'EMotionFXStaticLib',
+                                   'PhysX'],
 
         # To add an editor module to your gem:
         #
