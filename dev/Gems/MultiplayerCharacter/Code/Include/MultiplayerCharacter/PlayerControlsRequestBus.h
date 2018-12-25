@@ -17,20 +17,18 @@ namespace MultiplayerCharacter
         virtual ~PlayerControlsRequests() = default;
 
         // EBusTraits overrides
-        static const AZ::EBusHandlerPolicy HandlerPolicy =
-            AZ::EBusHandlerPolicy::Single;
-        static const AZ::EBusAddressPolicy AddressPolicy =
-            AZ::EBusAddressPolicy::ById;
+        static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Single;
+        static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
         using BusIdType = AZ::EntityId;
 
         // Put your public methods here
-        virtual void MoveForward(ActionState state) {}
-        virtual void MoveBackward(ActionState state) {}
-        virtual void StrafeLeft(ActionState state) {}
-        virtual void StrafeRight(ActionState state) {}
-        virtual void Turn(float amount) {}
-        virtual void LookUpOrDown(float amount) {}
-        virtual void Shoot(ActionState state) {}
+        virtual void MoveForward( ActionState state ) {}
+        virtual void MoveBackward( ActionState state ) {}
+        virtual void StrafeLeft( ActionState state ) {}
+        virtual void StrafeRight( ActionState state ) {}
+        virtual void Turn( float amount ) {}
+        virtual void LookUpOrDown( float amount ) {}
+        virtual void Shoot( ActionState state ) {}
     };
 
     using PlayerControlsRequestBus =
@@ -43,13 +41,26 @@ namespace MultiplayerCharacter
         virtual ~ServerPlayerControlsRequests() = default;
 
         // EBusTraits overrides
-        static const AZ::EBusHandlerPolicy HandlerPolicy =
-            AZ::EBusHandlerPolicy::Multiple;
-        static const AZ::EBusAddressPolicy AddressPolicy =
-            AZ::EBusAddressPolicy::ById;
+        static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Multiple;
+        static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
         using BusIdType = AZ::EntityId;
     };
 
     using ServerPlayerControlsRequestBus =
         AZ::EBus<ServerPlayerControlsRequests>;
+
+    class LocalPlayerControlsRequests
+        : public PlayerControlsRequests
+    {
+    public:
+        virtual ~LocalPlayerControlsRequests() = default;
+
+        // EBusTraits overrides
+        static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Multiple;
+        static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
+        using BusIdType = AZ::EntityId;
+    };
+
+    using LocalPlayerControlsRequestBus =
+        AZ::EBus<LocalPlayerControlsRequests>;
 } // namespace MultiplayerCharacter

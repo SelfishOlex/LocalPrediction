@@ -32,21 +32,38 @@ namespace AzFramework
     GridMate::ReplicaChunkPtr NetBindable::GetNetworkBinding()
     {
         NetworkContext* netContext = nullptr;
-        EBUS_EVENT_RESULT(netContext, NetSystemRequestBus, GetNetworkContext);
+        NetSystemRequestBus::BroadcastResult(netContext, &NetSystemRequestBus::Events::GetNetworkContext);
         AZ_Assert(netContext, "Cannot bind objects to the network with no NetworkContext");
+        if (netContext)
+        {
+            GridMate::ReplicaChunkPtr chunk = netContext->CreateReplicaChunk(azrtti_typeid(this));
+            netContext->Bind(this, chunk);
+            return chunk;
+        }
+            
+        return nullptr;
+    }
 
-        GridMate::ReplicaChunkPtr chunk = netContext->CreateReplicaChunk(azrtti_typeid(this));
-        netContext->Bind(this, chunk);
-        return chunk;
+    void NetBindable::SetNetworkBinding (GridMate::ReplicaChunkPtr chunk)
+    {
+        NetworkContext* netContext = nullptr;
+        NetSystemRequestBus::BroadcastResult(netContext, &NetSystemRequestBus::Events::GetNetworkContext);
+        AZ_Assert(netContext, "Cannot bind objects to the network with no NetworkContext");
+        if (netContext)
+        {
+            netContext->Bind(this, chunk);
+        }
     }
 
     void NetBindable::NetInit()
     {
         NetworkContext* netContext = nullptr;
-        EBUS_EVENT_RESULT(netContext, NetSystemRequestBus, GetNetworkContext);
-        AZ_Assert(netContext, "Cannot init objects with RPCs with no NetworkContext");
-
-        netContext->Bind(this);
+        NetSystemRequestBus::BroadcastResult(netContext, &NetSystemRequestBus::Events::GetNetworkContext);
+        AZ_Assert(netContext, "Cannot bind objects to the network with no NetworkContext");
+        if (netContext)
+        {
+            netContext->Bind(this);
+        }
     }    
 
     void NetBindable::Reflect(AZ::ReflectContext* reflection)

@@ -39,7 +39,7 @@ namespace MultiplayerCharacter
     private:
         AZ::Vector3 m_desiredDirectionAndSpeed;
         AZ::Vector3 m_gravity;
-        float m_characterSize = 0.5f;
+        float m_characterSize = 1.0f;
 
         Physics::Ptr<Physics::World> m_physXWorld;
 

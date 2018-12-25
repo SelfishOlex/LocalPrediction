@@ -48,7 +48,8 @@ namespace AzFramework
     // GridMate ReplicaChunk/ReplicaChunkDescriptors
     ///////////////////////////////////////////////////////////////////////////
     class ReflectedReplicaChunkBase
-        : public ReplicaChunk
+        : public ReplicaChunkBase
+        , public ReplicaChunkInterface
     {
         friend NetworkContext;
     public:
@@ -63,7 +64,7 @@ namespace AzFramework
         virtual AZ::u8* GetDataStart() const = 0;
         /// Binds an instance of the reflected class to this chunk
         virtual void Bind(NetBindable* instance) = 0;
-        /// Removes network bindings from the bound NetBinable
+        /// Removes network bindings from the bound NetBindable
         virtual void Unbind() = 0;
 
         WriteBufferDynamic   m_ctorBuffer; ///< Buffer to hold ctor data before the chunk is bound
@@ -838,6 +839,8 @@ namespace AzFramework
         {
             AZ_STATIC_ASSERT((AZStd::is_base_of<ReplicaChunkInterface, InterfaceType>::value), "Cannot bind an RPC call to an object which is not a ReplicaChunkInterface");
             AZ_Assert(!m_binding->m_typeId.IsNull(), "Cannot register an RPC for a class which has not been declared to the NetworkContext");
+
+            m_context->InitReflectedChunkBinding<ClassType>(m_binding);
 
             ptrdiff_t offset = reinterpret_cast<ptrdiff_t>(&(reinterpret_cast<ClassType const volatile*>(0)->*rpc));
             m_binding->m_chunkDesc.m_rpcs.push_back(aznew NetBindableRpcDesc<RpcBindType>(name, offset));

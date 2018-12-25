@@ -13,6 +13,7 @@
 #include <PlayerActionRelayComponent.h>
 #include <platform_impl.h>
 #include <MyCharacterComponent.h>
+#include <LocalPredictionComponent.h>
 
 namespace MultiplayerCharacter
 {
@@ -40,6 +41,7 @@ namespace MultiplayerCharacter
                 PlayerActionRelayComponent::CreateDescriptor(),
                 MultiplayerCharacterSystemComponent::CreateDescriptor(),
                 MyCharacterComponent::CreateDescriptor(),
+                LocalPredictionComponent::CreateDescriptor(),
             });
         }
 

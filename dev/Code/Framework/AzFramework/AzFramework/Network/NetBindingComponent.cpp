@@ -100,6 +100,29 @@ namespace AzFramework
             {
                 BindToNetwork(nullptr);
             }
+            else
+            {
+                /*
+                 * This is the Editor path. We still need to call NetBindable::NetInit() in order
+                 * to initialize NetworkContext Fields and RPCs, so that they behave as
+                 * authoritative in game editor mode. Without this call RPCs callbacks won't invoke inside the Editor.
+                 * For example:
+                 * 
+                 * static void Reflect(...)
+                 * {
+                 *  NetworkContext->Class<MyNetworkComponent>()->RPC("my rpc", &MyNetworkComponent::m_myRpc);
+                 * }
+                 * ...
+                 * m_myRpc(); // <--- will not invoke the callback inside the Editor unless NetInit() is called below.
+                 */
+                for (Component* component : GetEntity()->GetComponents())
+                {
+                    if (NetBindable* netBindable = azrtti_cast<NetBindable*>(component))
+                    {
+                        netBindable->NetInit();
+                    }
+                }
+            }
         }
     }
 

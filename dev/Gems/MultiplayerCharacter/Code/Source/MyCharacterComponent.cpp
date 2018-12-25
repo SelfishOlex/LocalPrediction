@@ -55,13 +55,13 @@ void MyCharacterComponent::Deactivate()
 
 void MyCharacterComponent::PhysicalMove( const AZ::Vector3& direction, float deltaTime )
 {
-    if ( !direction.IsZero() )
+    if ( direction.IsZero() )
     {
-        PhysicalMoveWithoutGravity( direction, deltaTime );
+        ApplyGravity( deltaTime );
     }
     else
     {
-        ApplyGravity( deltaTime );
+        PhysicalMoveWithoutGravity( direction, deltaTime );
     }
 }
 
@@ -98,8 +98,10 @@ void MyCharacterComponent::PhysicalMoveWithoutGravity(const AZ::Vector3& directi
     AZ::TransformBus::EventResult( startLocation, GetEntityId(), &AZ::TransformBus::Events::GetWorldTranslation );
     request.m_start = startLocation;
 
-    AZ_Printf( "LocalPrediction", "Character @ (%f %f %f)",
-        float( request.m_start.GetX() ), float( request.m_start.GetY() ), float( request.m_start.GetZ() ) );
+    request.m_start.SetZ( request.m_start.GetZ() + 0.5f );
+
+    /*AZ_Printf( "LocalPrediction", "Character @ (%f %f %f)",
+        float( request.m_start.GetX() ), float( request.m_start.GetY() ), float( request.m_start.GetZ() ) );*/
 
     request.m_dir = direction.GetNormalized();
     request.m_time = direction.GetLength() * deltaTime;
@@ -118,12 +120,12 @@ void MyCharacterComponent::PhysicalMoveWithoutGravity(const AZ::Vector3& directi
     else if ( result.m_hits[0].m_hitTime > 0 ) // hack around PhysX Gem implementation that returns bad hits
     {
         // move to the collision point
-        const AZ::Vector3 locationAtCollision = request.m_start + AZStd::GetMax( result.m_hits[0].m_hitTime - m_characterSize, 0.f) * request.m_dir;
+        const AZ::Vector3 locationAtCollision = startLocation + AZStd::GetMax( result.m_hits[0].m_hitTime - m_characterSize, 0.f) * request.m_dir;
 
         AZ::TransformBus::Event( GetEntityId(), &AZ::TransformBus::Events::SetWorldTranslation, locationAtCollision );
 
-        AZ_Printf( "LocalPrediction", "Character bumped into something, moved to (%f %f %f)",
-            float( locationAtCollision.GetX() ), float( locationAtCollision.GetY() ), float( locationAtCollision.GetZ() ) );
+        /*AZ_Printf( "LocalPrediction", "Character bumped into something, moved to (%f %f %f)",
+            float( locationAtCollision.GetX() ), float( locationAtCollision.GetY() ), float( locationAtCollision.GetZ() ) );*/
     }
 }
 

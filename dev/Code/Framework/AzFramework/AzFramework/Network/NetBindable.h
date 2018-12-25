@@ -67,10 +67,10 @@ namespace AzFramework
         virtual GridMate::ReplicaChunkPtr GetNetworkBinding();
 
         //! Called during network binding on proxies.
-        virtual void SetNetworkBinding(GridMate::ReplicaChunkPtr chunk) = 0;
+        virtual void SetNetworkBinding(GridMate::ReplicaChunkPtr chunk);
 
-        //! Called when network is unbound. Implementations should release their references to the binding.
-        virtual void UnbindFromNetwork() = 0;
+        //! Called when network is unbound. Implementations should release their references to the binding, if they held a reference.
+        virtual void UnbindFromNetwork() {}
 
         static void Reflect(AZ::ReflectContext* reflection);
 
@@ -111,19 +111,32 @@ namespace AzFramework
         using DataSetType = DataSet<DataType, MarshalerType, ThrottlerType>;
         using ValueType = DataType;
 
-    public:
-        Field(const DataType& value = DataType())
+        explicit Field(const DataType& value = DataType())
             : m_dataSet(nullptr)
             , m_value(value)
         {}
         ~Field() override = default;
 
-        operator const DataType&() const
+        /*
+         * Disabling copy and move constructors in order to allow for a common use of fields, for example:
+         * m_field = m_field + 1;
+         */
+        Field (const Field& other) = delete;
+        Field (Field&& other) = delete;
+        Field& operator= (const Field& other) = delete;
+        Field& operator= (Field&& other) = delete;
+
+        const DataType& Get() const
         {
             return m_dataSet ? m_dataSet->Get() : m_value;
         }
 
-        Field& operator=(const DataType& val)
+        virtual operator const DataType&() const
+        {
+            return Get();
+        }
+
+        virtual Field& operator=(const DataType& val)
         {
             if (m_dataSet)
             {
@@ -136,7 +149,7 @@ namespace AzFramework
             return *this;
         }
 
-        Field& operator=(const DataType&& val)
+        virtual Field& operator=(const DataType&& val)
         {
             if (m_dataSet)
             {
@@ -204,16 +217,37 @@ namespace AzFramework
     class NetBindable::BoundField
         : public NetBindable::Field<DataType, MarshalerType, ThrottlerType>
     {
+        using BaseClass = NetBindable::Field<DataType, MarshalerType, ThrottlerType>;
         friend class AZ::Internal::AzFrameworkNetBindableFieldContainer<NetBindable::BoundField<DataType, InterfaceType, FuncPtr, MarshalerType, ThrottlerType> >;
     public:
         AZ_TYPE_INFO(BoundField, "{5151CEAF-6AC0-45D7-AEDF-8B6C46CE07B9}", DataType, InterfaceType, MarshalerType, ThrottlerType);
         using DataSetType = typename DataSet<DataType, MarshalerType, ThrottlerType>::template BindInterface<InterfaceType, FuncPtr>;
 
-    public:
-        BoundField(const DataType& value = DataType())
+        explicit BoundField(const DataType& value = DataType())
             : NetBindable::Field<DataType, MarshalerType, ThrottlerType>(value)
         {}
         ~BoundField() override = default;
+
+        /*
+         * Disabling copy and move constructors in order to allow for a common use of fields, for example:
+         * m_field = m_field + 1;
+         */
+        BoundField (const BoundField& other) = delete;
+        BoundField (BoundField&& other) = delete;
+        BoundField& operator= (const BoundField& other) = delete;
+        BoundField& operator= (BoundField&& other) = delete;
+
+        Field& operator=(const DataType& val) override
+        {
+            BaseClass::operator=(val);
+            return *this;
+        }
+
+        Field& operator=(const DataType&& val) override
+        {
+            BaseClass::operator=(val);
+            return *this;
+        }
 
         void Bind(DataSetBase* dataSet) override
         {
@@ -268,7 +302,7 @@ namespace AzFramework
                 m_instance = nullptr;
             }
 
-            void Bind(NetBindable* bindable)
+            void Bind(NetBindable* bindable) override
             {
                 m_instance = static_cast<InterfaceType*>(bindable);
                 m_rpc = nullptr;

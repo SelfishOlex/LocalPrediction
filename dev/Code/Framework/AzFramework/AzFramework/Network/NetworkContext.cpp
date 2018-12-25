@@ -50,11 +50,17 @@ namespace AzFramework
     {
         if (m_context->IsRemovingReflection())
         {
-            m_binding->UnregisterChunkType();
+            if (m_binding->UnregisterChunkType)
+            {
+                m_binding->UnregisterChunkType();
+            }
         }
         else
         {
-            m_binding->RegisterChunkType();
+            if (m_binding->RegisterChunkType)
+            {
+                m_binding->RegisterChunkType();
+            }
         }
     }
 
@@ -175,7 +181,7 @@ namespace AzFramework
                     }
 
                     // Bind the chunk to the NetBindable
-                    instance->SetNetworkBinding(chunk);
+                    //instance->SetNetworkBinding(chunk);
                 }
             }
             else
