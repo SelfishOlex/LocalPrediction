@@ -31,5 +31,13 @@ namespace MultiplayerCharacter
         void MoveBackward(ActionState state) override;
         void StrafeLeft(ActionState state) override;
         void StrafeRight(ActionState state) override;
+
+    private:
+        // network c-tor
+
+        AZ::Vector3 m_spawnLocation;
+
+        const AZ::Vector3& GetSpawnLocation();
+        void SetSpawnLocation(const AZ::Vector3& initialLocation);
     };
 }

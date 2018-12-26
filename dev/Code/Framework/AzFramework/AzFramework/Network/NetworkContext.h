@@ -854,6 +854,8 @@ namespace AzFramework
     {
         if (!m_context->IsRemovingReflection())
         {
+            m_context->InitReflectedChunkBinding<ClassType>(m_binding);
+
             auto get = [getter](NetBindable* nb) -> DataType { return (*static_cast<ClassType*>(nb).*getter)(); };
             auto set = [setter](NetBindable* nb, const DataType& data) { (*static_cast<ClassType*>(nb).*setter)(data); };
             m_binding->m_chunkDesc.m_ctors.push_back(aznew CtorDataDesc<ClassType, DataType, MarshalerType>(name, get, set));

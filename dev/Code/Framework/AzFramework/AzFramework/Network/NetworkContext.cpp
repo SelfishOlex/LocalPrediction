@@ -126,11 +126,10 @@ namespace AzFramework
 
     ReplicaChunkBase* NetworkContext::CreateReplicaChunk(const AZ::Uuid& typeId)
     {
-        auto it = m_classBindings.find(typeId);
+        const auto it = m_classBindings.find(typeId);
         if (it != m_classBindings.end())
         {
-            ClassDescPtr binding = it->second;
-            AZ_Assert(binding->CreateReplicaChunk, "No chunk type or fields were registered with the NetworkContext for class %s", binding->m_name);
+            const ClassDescPtr binding = it->second;
             if (binding->CreateReplicaChunk)
             {
                 ReplicaChunkDescriptor* descriptor = ReplicaChunkDescriptorTable::Get().FindReplicaChunkDescriptor(binding->m_chunkDesc.m_chunkId);
@@ -143,7 +142,16 @@ namespace AzFramework
             }
         }
 
-        AZ_Warning("NetworkContext", false, "CreateReplicaChunk could not find a binding for %s", typeId.ToString<AZStd::string>().c_str());
+        /*
+         * Special case: empty declarations such as:
+         * 
+         * static void Reflect() {
+         *     ....
+         *     NetworkContext->Class<MyComponent>();
+         * }
+         *      
+         * Result in no ReplicaChunks being created. It's created as no-op for networking. No replication will be performed.
+         */
         return nullptr;
     }
 
