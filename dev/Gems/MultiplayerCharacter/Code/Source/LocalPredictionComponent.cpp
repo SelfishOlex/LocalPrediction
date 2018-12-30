@@ -2,6 +2,9 @@
 #include <AzFramework/Network/NetworkContext.h>
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Component/TransformBus.h>
+#include <AzFramework/Network/NetBindingHandlerBus.h>
+
+#pragma optimize("", off)
 
 using namespace AZ;
 using namespace AzFramework;
@@ -41,10 +44,21 @@ void LocalPredictionComponent::Init()
 void LocalPredictionComponent::Activate()
 {
     LocalPlayerControlsRequestBus::Handler::BusConnect(GetEntityId());
-    
-    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent SetSpawnLocation %f %f %f", 
-        m_spawnLocation.GetX().operator float(), m_spawnLocation.GetY().operator float(), m_spawnLocation.GetZ().operator float() );
-    AZ::TransformBus::Event(GetEntityId(), &AZ::TransformBus::Events::SetWorldTranslation, m_spawnLocation);
+
+    if (AzFramework::NetQuery::IsEntityAuthoritative( GetEntityId() ))
+    {
+        // on the server, save the spawn location
+        AZ::TransformBus::EventResult(m_spawnLocation, GetEntityId(), &AZ::TransformBus::Events::GetWorldTranslation);
+        AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent GetSpawnLocation %f %f %f",
+            m_spawnLocation.GetX().operator float(), m_spawnLocation.GetY().operator float(), m_spawnLocation.GetZ().operator float());
+    }
+    else
+    {
+        // on the client, apply the spawn location
+        AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent SetSpawnLocation %f %f %f",
+            m_spawnLocation.GetX().operator float(), m_spawnLocation.GetY().operator float(), m_spawnLocation.GetZ().operator float());
+        AZ::TransformBus::Event(GetEntityId(), &AZ::TransformBus::Events::SetWorldTranslation, m_spawnLocation);
+    }
 }
 
 void LocalPredictionComponent::Deactivate()
@@ -54,29 +68,30 @@ void LocalPredictionComponent::Deactivate()
 
 void LocalPredictionComponent::MoveForward(ActionState state)
 {
+    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent MoveForward %d", AZ::u8(state));
 }
 
 void LocalPredictionComponent::MoveBackward(ActionState state)
 {
+    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent MoveBackward %d", AZ::u8(state));
 }
 
 void LocalPredictionComponent::StrafeLeft(ActionState state)
 {
+    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent StrafeLeft %d", AZ::u8(state));
 }
 
 void LocalPredictionComponent::StrafeRight(ActionState state)
 {
+    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent StrafeRight %d", AZ::u8(state));
 }
 
-const AZ::Vector3& LocalPredictionComponent::GetSpawnLocation ()
+const AZ::Vector3& LocalPredictionComponent::GetSpawnLocation()
 {
-    AZ::TransformBus::EventResult(m_spawnLocation, GetEntityId(), &AZ::TransformBus::Events::GetWorldTranslation);
-    AZ_Printf("MultiplayerCharacter", "LocalPredictionComponent GetSpawnLocation %f %f %f", 
-        m_spawnLocation.GetX().operator float(), m_spawnLocation.GetY().operator float(), m_spawnLocation.GetZ().operator float() );
     return m_spawnLocation;
 }
 
-void LocalPredictionComponent::SetSpawnLocation (const AZ::Vector3& initialLocation)
+void LocalPredictionComponent::SetSpawnLocation(const AZ::Vector3& initialLocation)
 {
     m_spawnLocation = initialLocation;
 }

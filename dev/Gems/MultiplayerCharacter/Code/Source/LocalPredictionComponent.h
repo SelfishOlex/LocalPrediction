@@ -19,6 +19,11 @@ namespace MultiplayerCharacter
 
         ~LocalPredictionComponent() override = default;
 
+        static void GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)
+        {
+            required.push_back(AZ_CRC("TransformService"));
+        }
+
         static void Reflect( AZ::ReflectContext* reflection );
 
         void Init() override;
